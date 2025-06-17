@@ -1,24 +1,28 @@
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 
-/**
- * Update user profile
- * Route: PUT /api/profile
- * Protected: true (requires auth middleware)
- */
 exports.updateProfile = async (req, res) => {
   try {
-    const userId = req.user.id; // user ID from auth middleware
+    const userId = req.user.id;
     const { name, username, password } = req.body;
 
-    // Basic validation
     if (!name || !username) {
       return res.status(400).json({ status: 'error', message: 'Name and username are required.' });
     }
 
-    const updateFields = { name, username };
+    // Trim fields
+    const updateFields = {
+      name: name.trim(),
+      username: username.trim()
+    };
 
-    // Hash new password if provided
+    // Ensure unique username
+    const existingUser = await User.findOne({ username: updateFields.username });
+    if (existingUser && existingUser._id.toString() !== userId) {
+      return res.status(400).json({ status: 'error', message: 'Username already taken.' });
+    }
+
+    // Handle password update
     if (password && password.trim() !== '') {
       if (password.length < 6) {
         return res.status(400).json({ status: 'error', message: 'Password must be at least 6 characters.' });
@@ -27,11 +31,10 @@ exports.updateProfile = async (req, res) => {
       updateFields.password = await bcrypt.hash(password, salt);
     }
 
-    // Update user document
+    // Update profile
     const updatedUser = await User.findByIdAndUpdate(userId, updateFields, {
-      new: true,
-      select: '-password' // exclude password from response
-    });
+      new: true
+    }).select('-password');
 
     if (!updatedUser) {
       return res.status(404).json({ status: 'error', message: 'User not found.' });

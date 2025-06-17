@@ -1,13 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const { getDashboardStats } = require('../controllers/dashboardController');
-const authMiddleware = require('../middleware/authMiddleware'); // ensure only logged-in users can access
+const auth = require('../middleware/authMiddleware'); // consistent naming
 
 /**
  * @route   GET /api/dashboard
  * @desc    Get dashboard statistics
  * @access  Private
  */
-router.get('/', authMiddleware, getDashboardStats);
+router.get('/', auth, getDashboardStats);
 
 module.exports = router;

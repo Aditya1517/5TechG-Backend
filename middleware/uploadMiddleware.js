@@ -2,7 +2,26 @@ const multer = require("multer");
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const cloudinary = require("../config/cloudinary");
 
-// Single image upload (e.g., profile or buyer image)
+// Only allow image uploads
+const imageFileFilter = (req, file, cb) => {
+  if (!file.mimetype.startsWith("image/")) {
+    const error = new Error("Only image files are allowed!");
+    error.code = "LIMIT_FILE_TYPE";
+    cb(error, false);
+  } else {
+    cb(null, true);
+  }
+};
+
+// Multer configuration
+const multerOptions = {
+  limits: {
+    fileSize: 5 * 1024 * 1024, // Max size: 5MB
+  },
+  fileFilter: imageFileFilter,
+};
+
+// Storage for buyer/profile images
 const singleStorage = new CloudinaryStorage({
   cloudinary,
   params: {
@@ -11,7 +30,7 @@ const singleStorage = new CloudinaryStorage({
   },
 });
 
-// Multiple image upload (e.g., car images)
+// Storage for vehicle images
 const multipleStorage = new CloudinaryStorage({
   cloudinary,
   params: {
@@ -20,10 +39,18 @@ const multipleStorage = new CloudinaryStorage({
   },
 });
 
-const uploadSingle = multer({ storage: singleStorage });
-const uploadMultiple = multer({ storage: multipleStorage });
+// Export middlewares
+const uploadSingle = multer({
+  storage: singleStorage,
+  ...multerOptions,
+});
+
+const uploadMultiple = multer({
+  storage: multipleStorage,
+  ...multerOptions,
+});
 
 module.exports = {
-  uploadSingle,     // use for profile/buyer image
-  uploadMultiple,   // use for multiple vehicle images
+  uploadSingle,    // for routes like POST /buyer
+  uploadMultiple,  // for routes like POST /vehicles
 };

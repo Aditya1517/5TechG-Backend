@@ -1,29 +1,40 @@
 const express = require("express");
 const router = express.Router();
+
 const {
   getVehicles,
   addVehicle,
   deleteVehicle,
   getVehicleById,
-  vehicleOut // <-- import the new controller
+  vehicleOut
 } = require("../controllers/vehicleController");
 
 const auth = require("../middleware/authMiddleware");
 const { uploadMultiple } = require("../middleware/uploadMiddleware");
 
-// Get all vehicles
+// @route   GET /api/vehicles/
+// @desc    Fetch all vehicles
+// @access  Private
 router.get("/", auth, getVehicles);
 
-// Get a single vehicle by ID
+// @route   GET /api/vehicles/:id
+// @desc    Get details of a single vehicle by ID
+// @access  Private
 router.get("/:id", auth, getVehicleById);
 
-// Add a vehicle with multiple image upload
-router.post("/", auth, uploadMultiple.array("images", 5), addVehicle);
+// @route   POST /api/vehicles/
+// @desc    Add a new vehicle with up to 10 images
+// @access  Private
+router.post("/", auth, uploadMultiple.array("images", 10), addVehicle);
 
-// Mark a vehicle as out (sold) and save buyer info
+// @route   POST /api/vehicles/:id/out
+// @desc    Mark a vehicle as sold and attach buyer info
+// @access  Private
 router.post("/:id/out", auth, vehicleOut);
 
-// Delete a vehicle by ID
+// @route   DELETE /api/vehicles/:id
+// @desc    Permanently delete a vehicle record by ID
+// @access  Private
 router.delete("/:id", auth, deleteVehicle);
 
 module.exports = router;

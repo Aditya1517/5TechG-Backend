@@ -6,7 +6,8 @@ const vehicleSchema = new mongoose.Schema({
     required: true,
     trim: true,
     uppercase: true,
-    unique: true // assuming vehicle numbers are unique
+    unique: true,
+    index: true
   },
   hp: {
     type: Number,
@@ -14,33 +15,76 @@ const vehicleSchema = new mongoose.Schema({
   },
   chassisNumber: {
     type: String,
-    trim: true,
     required: true,
-    unique: true
+    unique: true,
+    trim: true
   },
   engineNumber: {
     type: String,
-    trim: true,
     required: true,
-    unique: true
+    unique: true,
+    trim: true
   },
-  model: {
+  vehicleName: {
     type: String,
     required: true,
     trim: true
   },
-  insuranceDate: {
-    type: Date
+  modelYear: {
+    type: Number,
+    required: true,
+    min: 1950,
+    max: new Date().getFullYear()
   },
   ownerName: {
     type: String,
-    trim: true,
-    required: true
+    required: true,
+    trim: true
+  },
+  ownerNumber: {
+    type: String,
+    match: [/^\d{10}$/, 'Owner number must be 10 digits']
+  },
+  ownership: {
+    type: String,
+    required: true,
+    trim: true
   },
   mobileNumber: {
     type: String,
-    match: [/^\d{10}$/, 'Mobile number must be 10 digits'],
-    required: true
+    required: true,
+    match: [/^\d{10}$/, 'Mobile number must be 10 digits']
+  },
+  challan: {
+    type: String,
+    trim: true
+  },
+  rc: {
+    type: String,
+    trim: true
+  },
+  puc: {
+    type: String,
+    trim: true
+  },
+  noc: {
+    type: String,
+    trim: true
+  },
+  isRcAvailable: {
+    type: Boolean,
+    default: false
+  },
+  isPucAvailable: {
+    type: Boolean,
+    default: false
+  },
+  isNocAvailable: {
+    type: Boolean,
+    default: false
+  },
+  insuranceDate: {
+    type: Date
   },
   isSold: {
     type: Boolean,
@@ -52,9 +96,9 @@ const vehicleSchema = new mongoose.Schema({
   },
   images: [
     {
-      type: String // Cloudinary URLs of vehicle images
+      type: String
     }
   ]
-});
+}, { timestamps: true });
 
 module.exports = mongoose.model("Vehicle", vehicleSchema);

@@ -5,16 +5,16 @@ const adminSchema = new mongoose.Schema({
   username: {
     type: String,
     required: true,
-    unique: true, // Prevent duplicate usernames
+    unique: true,
     trim: true
   },
   password: {
     type: String,
     required: true
   }
-});
+}, { timestamps: true });
 
-// Hash password before saving (if modified)
+// Hash password before saving (only if modified)
 adminSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
   try {
@@ -25,5 +25,10 @@ adminSchema.pre("save", async function (next) {
     next(err);
   }
 });
+
+// Add password comparison method
+adminSchema.methods.comparePassword = async function (candidatePassword) {
+  return await bcrypt.compare(candidatePassword, this.password);
+};
 
 module.exports = mongoose.model("Admin", adminSchema);

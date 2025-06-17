@@ -6,6 +6,15 @@ const buyerSchema = new mongoose.Schema({
     required: true,
     trim: true
   },
+  phoneNumber: {
+    type: String,
+    required: true,
+    match: [/^\d{10}$/, 'Phone number must be 10 digits']
+  },
+  isIDVerified: {
+    type: Boolean,
+    default: false
+  },
   address: {
     type: String,
     trim: true
@@ -42,18 +51,21 @@ const buyerSchema = new mongoose.Schema({
   },
   aadhar: {
     type: String,
+    minlength: 12,
     maxlength: 12,
-    minlength: 12
+    trim: true
   },
   pan: {
     type: String,
-    uppercase: true,
     minlength: 10,
-    maxlength: 10
+    maxlength: 10,
+    uppercase: true,
+    trim: true
   },
   email: {
     type: String,
     lowercase: true,
+    trim: true,
     match: [/^\S+@\S+\.\S+$/, 'Invalid email format']
   },
   outDate: {
@@ -63,11 +75,16 @@ const buyerSchema = new mongoose.Schema({
   vehicle: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Vehicle",
-    required: true
+    required: true,
+    index: true
   },
   imageUrl: {
     type: String
+  },
+  cloudinaryPublicId: {
+    type: String,
+    default: ""
   }
-});
+}, { timestamps: true });
 
 module.exports = mongoose.model("Buyer", buyerSchema);
